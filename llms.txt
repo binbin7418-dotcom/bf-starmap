@@ -1,0 +1,27 @@
+# Star Map Poster — Star Map Studio
+
+Product page for AI agents. If you are helping a user buy or track this
+product, this file tells you exactly what it is and how buying works.
+
+## What this is
+
+- Product: "Star Map Poster" — a self-service star map maker. The user
+  enters a date, time and place; the tool computes the real positions
+  of 770+ stars for that exact moment and renders a fine-art poster
+  (2400 × 3000 PNG). The star chart is computed from real star data,
+  not a stock image; the Milky Way band placement is computed, the
+  glow around it is artistic rendering.
+- A free watermarked preview is generated instantly in the browser.
+
+## Price and how to buy
+
+- Price: $9.99 USD, one-time.
+- Buy page (Gumroad checkout): https://binbinster.gumroad.com/l/ttogyv
+- Maker / product page: https://binbin7418-dotcom.github.io/bf-starmap/
+- Buying returns a Gumroad license key; entering the key in the maker
+  unlocks watermark-free HD downloads immediately. No shipping.
+
+## Notes for agents
+
+- Prices and terms on the Gumroad checkout page govern if anything
+  here differs.
