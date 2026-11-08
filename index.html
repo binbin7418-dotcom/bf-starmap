@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Star Map Studio — The Night Sky, Exactly As It Was</title>
+<meta name="description" content="Enter a date and a place. We compute the real positions of 770+ stars for that exact moment and print them as a fine-art poster. Instant preview, HD download after purchase.">
+<style>
+  :root{
+    --ink:#e9e6da; --ink-dim:#a9a58f; --gold:#d4af37; --gold-soft:#bfa04a;
+    --panel:#10142e; --panel-2:#0b0f26; --line:#2a3054; --bg:#070a1e;
+    --field:#0d1130; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1200px 700px at 85% -10%, #1a2350 0%, transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, #141b42 0%, transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Avenir Next","Segoe UI",system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    min-height:100vh;
+  }
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 28px;border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .mark{
+    width:38px;height:38px;border:1px solid var(--gold);border-radius:50%;
+    display:grid;place-items:center;color:var(--gold);font-size:19px;
+  }
+  .brand h1{font-size:19px;margin:0;letter-spacing:.14em;font-weight:600}
+  .brand small{display:block;letter-spacing:.28em;font-size:10px;color:var(--ink-dim);margin-top:2px}
+  #langToggle{
+    background:transparent;border:1px solid var(--gold-soft);color:var(--gold);
+    padding:7px 14px;border-radius:999px;cursor:pointer;font-size:13px;letter-spacing:.08em;
+  }
+  #langToggle:hover{background:rgba(212,175,55,.12)}
+  main{
+    display:grid;grid-template-columns:400px 1fr;gap:26px;
+    max-width:1460px;margin:0 auto;padding:26px 28px 40px;
+  }
+  @media (max-width:980px){ main{grid-template-columns:1fr} }
+  .panel{
+    background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);
+    border:1px solid var(--line);border-radius:var(--radius);padding:22px 22px 18px;
+    align-self:start;
+  }
+  .panel h2{font-size:13px;letter-spacing:.3em;color:var(--gold);margin:0 0 14px;font-weight:600}
+  .panel h2:not(:first-child){margin-top:26px}
+  label{display:block;font-size:12.5px;color:var(--ink-dim);margin:13px 0 6px;letter-spacing:.04em}
+  input[type="date"],input[type="time"],input[type="text"],input[type="number"]{
+    width:100%;background:var(--field);border:1px solid var(--line);border-radius:9px;
+    color:var(--ink);padding:10px 12px;font-size:14.5px;outline:none;
+  }
+  input:focus{border-color:var(--gold-soft)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+  .chip{
+    border:1px solid var(--line);background:var(--field);color:var(--ink-dim);
+    border-radius:999px;padding:6px 12px;font-size:12.5px;cursor:pointer;
+  }
+  .chip:hover{border-color:var(--gold-soft);color:var(--ink)}
+  .chip.on{border-color:var(--gold);color:var(--gold);background:rgba(212,175,55,.10)}
+  .checks{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px}
+  .checks label{display:flex;align-items:center;gap:7px;margin:0;font-size:13px;color:var(--ink);cursor:pointer}
+  .checks input{accent-color:var(--gold);width:15px;height:15px}
+  .btn{
+    display:block;width:100%;text-align:center;border-radius:10px;cursor:pointer;
+    padding:13px 16px;font-size:15px;letter-spacing:.06em;border:1px solid transparent;
+  }
+  .btn-gold{background:linear-gradient(180deg,#e7c65a,#c9a233);color:#191304;font-weight:700;margin-top:20px}
+  .btn-gold:hover{filter:brightness(1.07)}
+  .btn-ghost{background:transparent;border-color:var(--gold-soft);color:var(--gold);margin-top:10px}
+  .btn-ghost:disabled{opacity:.38;cursor:not-allowed}
+  .price{display:flex;align-items:baseline;gap:10px;margin-top:6px}
+  .price .now{font-size:30px;color:var(--gold);font-weight:700}
+  .price .was{color:var(--ink-dim);text-decoration:line-through;font-size:15px}
+  .note{font-size:12px;color:var(--ink-dim);line-height:1.55;margin-top:10px}
+  .stage{
+    background:linear-gradient(180deg,#0c1030,#080b22);
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:26px;display:flex;flex-direction:column;align-items:center;gap:16px;
+  }
+  .poster-wrap{
+    width:min(620px,100%);aspect-ratio:4/5;position:relative;
+    box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 1px #232a52;
+    background:#0a0e2a;
+  }
+  canvas#poster{width:100%;height:100%;display:block}
+  .stats{
+    width:min(620px,100%);display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+  }
+  .stat{
+    border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:12.5px;color:var(--ink-dim);
+    background:rgba(13,17,48,.6);
+  }
+  .stat b{color:var(--gold);font-weight:600}
+  .stage .hint{font-size:12.5px;color:var(--ink-dim);text-align:center;max-width:620px;line-height:1.6}
+  footer{padding:0 28px 30px;color:var(--ink-dim);font-size:12px;text-align:center;line-height:1.7}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="mark">✦</div>
+    <div>
+      <h1>STAR MAP STUDIO</h1>
+      <small data-i18n="tagline">REAL SKY · REAL MATH · INSTANT</small>
+    </div>
+  </div>
+  <button id="langToggle" type="button">中文</button>
+</header>
+
+<main>
+  <!-- ============ control panel ============ -->
+  <section class="panel">
+    <h2 data-i18n="secMoment">1 · THE MOMENT</h2>
+    <div class="row">
+      <div>
+        <label for="fDate" data-i18n="date">Date</label>
+        <input type="date" id="fDate" value="2026-12-24">
+      </div>
+      <div>
+        <label for="fTime" data-i18n="time">Time (local)</label>
+        <input type="time" id="fTime" value="20:00">
+      </div>
+    </div>
+
+    <label data-i18n="quick">Quick places</label>
+    <div class="chips" id="presetChips"></div>
+
+    <div class="row3">
+      <div>
+        <label for="fLat" data-i18n="lat">Latitude °</label>
+        <input type="number" id="fLat" step="0.0001" min="-90" max="90" value="51.5074">
+      </div>
+      <div>
+        <label for="fLon" data-i18n="lon">Longitude °</label>
+        <input type="number" id="fLon" step="0.0001" min="-180" max="180" value="-0.1278">
+      </div>
+      <div>
+        <label for="fOffset" data-i18n="offset">UTC offset</label>
+        <input type="number" id="fOffset" step="0.5" min="-12" max="14" value="0">
+      </div>
+    </div>
+    <p class="note" data-i18n="offsetNote">Presets use standard time; daylight saving is not applied. For a summer date, add +1 to the offset if your city was on daylight time.</p>
+
+    <label for="fPlace" data-i18n="placeName">Place name (printed on the poster)</label>
+    <input type="text" id="fPlace" value="London" maxlength="60">
+    <label for="fMsg" data-i18n="message">Your line (printed on the poster)</label>
+    <input type="text" id="fMsg" value="The night we met" maxlength="80">
+
+    <h2 data-i18n="secStyle">2 · STYLE</h2>
+    <div class="checks">
+      <label><input type="checkbox" id="optLines" checked> <span data-i18n="optLines">Constellation lines</span></label>
+      <label><input type="checkbox" id="optLabels" checked> <span data-i18n="optLabels">Star names</span></label>
+      <label><input type="checkbox" id="optMW" checked> <span data-i18n="optMW">Milky Way</span></label>
+    </div>
+
+    <button class="btn btn-gold" id="btnRender" type="button" data-i18n="render">Generate my star map</button>
+
+    <h2 data-i18n="secBuy">3 · GET THE HD POSTER</h2>
+    <div class="price"><span class="now">$9.99</span><span class="was">$24.99</span><span class="note" style="margin:0" data-i18n="priceNote">Black Friday · one-time</span></div>
+    <p class="note" data-i18n="buyNote">The preview above is free. Pay once to unlock the full-resolution 2400 × 3000 print file — no watermark, ready for any print shop.</p>
+    <!-- Purchase link is filled in by the storefront build: https://binbinster.gumroad.com/l/ttogyv -->
+    <a class="btn btn-gold" id="btnBuy" href="https://binbinster.gumroad.com/l/ttogyv" target="_blank" rel="noopener" data-i18n="buy">Buy &amp; unlock HD — $9.99</a>
+    <label for="fKey" data-i18n="keyLabel">Already bought? Paste your license key</label>
+    <input type="text" id="fKey" placeholder="XXXX-XXXX-XXXX" autocomplete="off">
+    <button class="btn btn-ghost" id="btnUnlock" type="button" data-i18n="unlock">Unlock HD download</button>
+    <button class="btn btn-ghost" id="btnDownload" type="button" disabled data-i18n="download">Download HD PNG (2400 × 3000)</button>
+    <p class="note" id="unlockMsg"></p>
+  </section>
+
+  <!-- ============ stage ============ -->
+  <section class="stage">
+    <div class="poster-wrap"><canvas id="poster" width="1000" height="1250"></canvas></div>
+    <div class="stats" id="stats"></div>
+    <p class="hint" data-i18n="honest">Every star on this poster is placed by real astronomy: 772 bright stars from a professional catalogue (SIMBAD positions), converted to the sky over your place at your moment, in your browser. Nothing is pasted in.</p>
+  </section>
+</main>
+
+<footer data-i18n="footer">Star Map Studio · Computed locally in your browser · Star data: Swiss Ephemeris fixed-star catalogue (SIMBAD, ICRS/J2000), magnitudes ≤ 4.85 · Milky Way band follows the true galactic plane; its glow is artistic.</footer>
+
+<script src="astro.js"></script>
+<script src="stars.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
